@@ -2,6 +2,27 @@ from rosevrobank.backends.base.backend import BaseBackend
 
 
 class RosEvroBankClient(object):
+
+    ORDER_STATUS_REGISTERED = 0
+    ORDER_STATUS_PRE_AUTH_HOLD = 1
+    ORDER_STATUS_AUTHORIZED = 2
+    ORDER_STATUS_AUTH_CANCELLED = 3
+    ORDER_STATUS_REFUNDED = 4
+    ORDER_STATUS_ACS_AUTH_INITIATED = 5
+    ORDER_STATUS_AUTH_REJECTED = 6
+
+    AUTH_SUCCESS = 0
+    AUTH_ERROR_UNKNOWN = 1
+    AUTH_ERROR_REJECTED_BY_EMITTER = 2
+    AUTH_ERROR_EMITTER_NO_ANSWERED = 3
+    AUTH_ERROR_EMITTER = 4
+    AUTH_ERROR_WRONG_AMOUNT = 5
+    AUTH_ERROR_CARD_EXPIRED = 6
+    AUTH_ERROR_ONLINE_PAYMENT_FORBIDDEN = 7
+    AUTH_ERROR_WRONG_DATA_FORMAT = 8
+    AUTH_ERROR_AMOUNT_GREATER_THAN_LIMIT = 10
+    AUTH_ERROR_RECEIVED_ENDING_FOR_OVERDUE_PAYMENT = 11
+
     def __init__(self, **kwargs):
         backend = kwargs.get('backend')
         if not isinstance(backend, BaseBackend):
