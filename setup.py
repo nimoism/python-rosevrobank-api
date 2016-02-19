@@ -18,9 +18,12 @@ setup(
     url='https://github.com/nimoism/python-rosevrobank-api',
     platforms=["any"],
     packages=find_packages(),
+    install_requires=[
+        'requests',
+    ],
     scripts=[],
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Financial and Insurance Industry',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',

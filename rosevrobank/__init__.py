@@ -1,6 +1,6 @@
 """Python RosEvroBank API"""
 
-VERSION = (0, 1, 'dev0')
+VERSION = (0, 1, 'dev1')
 
 __version__ = '.'.join(map(str, VERSION))
 __author__ = 'Dmitry Puhov'
