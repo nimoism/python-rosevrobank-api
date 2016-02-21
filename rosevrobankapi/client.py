@@ -1,4 +1,4 @@
-from rosevrobank.backends.base.backend import BaseBackend
+from rosevrobankapi.backends.base.backend import BaseBackend
 
 
 class RosEvroBankClient(object):

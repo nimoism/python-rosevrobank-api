@@ -1,5 +1,5 @@
-from rosevrobank.backends.base.backend import BaseBackend
-from rosevrobank.response import Response
+from rosevrobankapi.backends.base.backend import BaseBackend
+from rosevrobankapi.response import Response
 
 
 class DummyBackend(BaseBackend):

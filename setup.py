@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-import rosevrobank as meta
+import rosevrobankapi as meta
 
 
 def long_description():

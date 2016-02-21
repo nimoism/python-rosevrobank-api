@@ -1,4 +1,4 @@
-from rosevrobank.exceptions import ResponseException
+from rosevrobankapi.exceptions import ResponseException
 
 
 class BaseResponse(object):

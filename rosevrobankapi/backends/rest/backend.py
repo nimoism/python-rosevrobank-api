@@ -2,10 +2,10 @@ from __future__ import absolute_import
 
 import requests
 
-from rosevrobank.backends.base.backend import BaseBackend, AuthBackendMixin
-from rosevrobank.backends.rest.fields import MoneyField, DateTimeField, CardDateField, TimestampField
-from rosevrobank.response import ErrorResponse, Response, HttpErrorResponse, ResponseData
-from rosevrobank.exceptions import ResponseException
+from rosevrobankapi.backends.base.backend import BaseBackend, AuthBackendMixin
+from rosevrobankapi.backends.rest.fields import MoneyField, DateTimeField, CardDateField, TimestampField
+from rosevrobankapi.response import ErrorResponse, Response, HttpErrorResponse, ResponseData
+from rosevrobankapi.exceptions import ResponseException
 
 
 class RestBackend(AuthBackendMixin, BaseBackend):
