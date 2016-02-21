@@ -9,8 +9,11 @@ from rosevrobankapi.exceptions import ResponseException
 
 
 class RestBackend(AuthBackendMixin, BaseBackend):
-    URL = 'https://paymentgate.ru/rebpayment/rest/'
-    TEST_URL = 'https://test.paymentgate.ru/rebpayment/rest/'
+    name = 'rest'
+
+    url = 'https://paymentgate.ru/rebpayment/rest/'
+    test_url = 'https://test.paymentgate.ru/rebpayment/rest/'
+
     ACTION_REGISTER_ORDER = 'register'
     ACTION_PRE_AUTH_REGISTER_ORDER = 'registerPreAuth'
     ACTION_DEPOSIT = 'deposit'
@@ -43,7 +46,7 @@ class RestBackend(AuthBackendMixin, BaseBackend):
         ACTION_GET_LAST_ORDERS_FOR_MERCHANTS
     )
 
-    FIELDS = {
+    fields = {
         ACTION_REGISTER_ORDER: {
             'amount': MoneyField(),
             'expiration_date': DateTimeField(),
@@ -67,7 +70,7 @@ class RestBackend(AuthBackendMixin, BaseBackend):
     def _get_action_url(self, action, test=None):
         if action not in self.actions:
             raise AttributeError("Action not found in action list")
-        url = self.TEST_URL if self._is_test(test) else self.URL
+        url = self.test_url if self._is_test(test) else self.url
         return url + action + '.do'
 
     def _get_params(self, raw_params):
@@ -87,7 +90,7 @@ class RestBackend(AuthBackendMixin, BaseBackend):
                 param_name = parameter_map_reverse_dict[raw_name]
             else:
                 param_name = raw_name
-            field = self.FIELDS.get(action, {}).get(param_name)
+            field = self.fields.get(action, {}).get(param_name)
             if field:
                 raw_value = field.to_python(raw_value)
             if isinstance(raw_value, list):

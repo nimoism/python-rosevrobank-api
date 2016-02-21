@@ -3,6 +3,7 @@ from rosevrobankapi.response import Response
 
 
 class DummyBackend(BaseBackend):
+    name = 'dummy'
 
     def _do_action(self, **kwargs):
         response_data = kwargs.get('response_data', {})

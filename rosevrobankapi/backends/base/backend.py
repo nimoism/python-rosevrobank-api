@@ -1,4 +1,18 @@
-class BaseBackend(object):
+from six import with_metaclass
+
+from rosevrobankapi.exceptions import ImproperlyConfigured
+
+
+class BackendMetaclass(type):
+    @staticmethod
+    def __new__(mcs, name, bases, attrs):
+        if not attrs.get('name') and name != 'BaseBackend':
+            raise ImproperlyConfigured("Backend's 'name' attribute is not configured for %s backend" % name)
+        return super(BackendMetaclass, mcs).__new__(mcs, name, bases, attrs)
+
+
+class BaseBackend(with_metaclass(BackendMetaclass)):
+    name = None
 
     PARAM_ERROR_CODE = 'errorCode'
     PARAM_ERROR_MESSAGE = 'errorMessage'
