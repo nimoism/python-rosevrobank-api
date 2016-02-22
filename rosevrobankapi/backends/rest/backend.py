@@ -5,7 +5,6 @@ import requests
 from rosevrobankapi.backends.base.backend import BaseBackend, AuthBackendMixin
 from rosevrobankapi.backends.rest.fields import MoneyField, DateTimeField, CardDateField, TimestampField
 from rosevrobankapi.response import ErrorResponse, Response, HttpErrorResponse, ResponseData
-from rosevrobankapi.exceptions import ResponseException
 
 
 class RestBackend(AuthBackendMixin, BaseBackend):
@@ -64,17 +63,18 @@ class RestBackend(AuthBackendMixin, BaseBackend):
 
     def __init__(self, **kwargs):
         self.set_secure(kwargs.pop('user_name'), kwargs.pop('password'))
-        self.test = kwargs.pop('test', False)
+        self.test = kwargs.get('test', False)
         super(RestBackend, self).__init__(**kwargs)
 
-    def _get_action_url(self, action, test=None):
+    def _get_action_url(self, action):
         if action not in self.actions:
             raise AttributeError("Action not found in action list")
-        url = self.test_url if self._is_test(test) else self.url
+        url = self.test_url if self.test else self.url
         return url + action + '.do'
 
-    def _get_params(self, raw_params):
+    def _get_action_params(self, raw_params):
         params = {}
+        self._append_secure(params)
         parameter_map_dict = dict(self.parameter_map)
         for raw_name, raw_value in raw_params.iteritems():
             param_name = parameter_map_dict[raw_name] if raw_name in parameter_map_dict else raw_name
@@ -82,7 +82,13 @@ class RestBackend(AuthBackendMixin, BaseBackend):
             params[param_name] = param_value
         return params
 
-    def _build_params(self, raw_data, action):
+    def _do_action(self, action, **kwargs):
+        params = self._get_action_params(kwargs)
+        url = self._get_action_url(action)
+        http_response = requests.get(url, params=params)
+        return self._process_response(http_response, action)
+
+    def _build_response_data(self, raw_data, action):
         params = {}
         parameter_map_reverse_dict = dict(self.parameter_map_reverse)
         for raw_name, raw_value in raw_data.iteritems():
@@ -97,47 +103,23 @@ class RestBackend(AuthBackendMixin, BaseBackend):
                 raw_value_list = list(raw_value)
                 raw_value = []
                 for sub_raw_data in raw_value_list:
-                    raw_value.append(self._build_params(sub_raw_data, action))
+                    raw_value.append(self._build_response_data(sub_raw_data, action))
             elif isinstance(raw_value, dict):
-                raw_value = self._build_params(raw_value, action)
+                raw_value = self._build_response_data(raw_value, action)
             params[param_name] = raw_value
         return ResponseData(params)
 
-    def _process_response(self, http_response, action, raise_error=None):
+    def _process_response(self, http_response, action):
         if http_response.status_code == 200:
             raw_data = http_response.json()
+            data = self._build_response_data(raw_data, action)
             if self.PARAM_ERROR_CODE in raw_data and int(raw_data[self.PARAM_ERROR_CODE]) != 0:
                 response = ErrorResponse(raw_data[self.PARAM_ERROR_CODE], raw_data[self.PARAM_ERROR_MESSAGE])
             else:
-                data = self._build_params(raw_data, action)
                 response = Response(data.data)
         else:
             response = HttpErrorResponse(http_response)
-        if self._should_raise_error(raise_error) and isinstance(response, ResponseException):
-            raise response
         return response
-
-    def _should_raise_error(self, raise_error=None):
-        if raise_error is not None:
-            return raise_error
-        return self.raise_errors
-
-    def _do_action(self, action, **kwargs):
-        test = kwargs.pop('test', None)
-        raise_errors = kwargs.pop('raise_errors', None)
-        params = self._get_params(kwargs)
-        return self.__do_action(action, params, raise_error=raise_errors, test=test)
-
-    def __do_action(self, action, params, raise_error=None, test=None):
-        self._append_secure(params)
-        url = self._get_action_url(action, test=test)
-        http_response = requests.get(url, params=params)
-        return self._process_response(http_response, action, raise_error=raise_error)
-
-    def _is_test(self, test):
-        if test is not None:
-            return test
-        return self.test
 
     def register_order(self, **kwargs):
         return self._do_action(self.ACTION_REGISTER_ORDER, **kwargs)

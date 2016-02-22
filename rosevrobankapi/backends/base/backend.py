@@ -78,7 +78,7 @@ class BaseBackend(with_metaclass(BackendMetaclass)):
     parameter_map_reverse = set([(p1, p0) for p0, p1 in parameter_map])
 
     def __init__(self, **kwargs):
-        self.raise_errors = kwargs.pop('raise_errors', False)
+        pass
 
     def register_order(self, **kwargs):
         raise NotImplementedError()
