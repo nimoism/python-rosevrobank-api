@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from rosevrobankapi.exceptions import ResponseException
 
 
@@ -10,15 +12,22 @@ class BaseErrorResponse(BaseResponse, ResponseException):
 
 
 class ErrorResponse(BaseErrorResponse):
-    def __init__(self, code, message):
-        self.code = code
+    def __init__(self, code, message, data=None):
         self.message = message
+        self.code = code
+        self.data = data
+
+    def __str__(self):
+        return "{message} ({code})".format(message=self.message, code=self.code)
 
 
 class HttpErrorResponse(BaseErrorResponse):
     def __init__(self, http_response):
         self.message = "Response was returned with HTTP code: %s" % http_response.status_code
         self.http_response = http_response
+
+    def __str__(self):
+        return self.message
 
 
 class ResponseData(object):

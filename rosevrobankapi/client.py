@@ -1,5 +1,10 @@
+from logging import getLogger
+
 from rosevrobankapi.backends.base.backend import BaseBackend
 from rosevrobankapi.response import BaseErrorResponse
+
+
+logger = getLogger(__name__)
 
 
 class RosEvroBankClient(object):
@@ -17,12 +22,19 @@ class RosEvroBankClient(object):
         if not isinstance(backend, BaseBackend):
             raise AttributeError("Attribute 'backend' must be BaseBackend instance")
         self.backend = backend
-        self.raise_errors = kwargs.get('raise_errors', True)
 
     def _call_backend(self, method, **kwargs):
-        response = method(**kwargs)
-        if self.raise_errors and isinstance(response, BaseErrorResponse):
-            raise response
+        """
+        :param method: method to call
+        :type method: func
+        :param kwargs:
+        :return: rosevrobankapi.response.Response
+        """
+        try:
+            response = method(**kwargs)
+        except BaseErrorResponse as e:
+            logger.exception(e, extra={'backend': self.backend.name, 'method': method.__name__})
+            raise
         return response
 
     def register_order(self, order_number, amount, return_url, **kwargs):

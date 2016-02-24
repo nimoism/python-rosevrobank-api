@@ -55,4 +55,4 @@ class TimestampField(Field):
 
 class CardDateField(BaseDatetimeField):
     format = '%Y%m'
-    type_ = datetime.date
+    type_ = datetime.datetime

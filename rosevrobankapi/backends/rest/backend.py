@@ -45,7 +45,13 @@ class RestBackend(AuthBackendMixin, BaseBackend):
         ACTION_GET_LAST_ORDERS_FOR_MERCHANTS
     )
 
-    fields = {
+    action_fields = {
+        ACTION_REGISTER_ORDER: {
+            'amount': MoneyField(),
+        }
+    }
+
+    result_fields = {
         ACTION_REGISTER_ORDER: {
             'amount': MoneyField(),
             'expiration_date': DateTimeField(),
@@ -72,18 +78,21 @@ class RestBackend(AuthBackendMixin, BaseBackend):
         url = self.test_url if self.test else self.url
         return url + action + '.do'
 
-    def _get_action_params(self, raw_params):
+    def _get_action_params(self, raw_params, action):
         params = {}
         self._append_secure(params)
         parameter_map_dict = dict(self.parameter_map)
         for raw_name, raw_value in raw_params.iteritems():
             param_name = parameter_map_dict[raw_name] if raw_name in parameter_map_dict else raw_name
             param_value = raw_value
+            field = self.action_fields.get(action, {}).get(param_name)
+            if field:
+                param_value = field.from_python(param_value)
             params[param_name] = param_value
         return params
 
     def _do_action(self, action, **kwargs):
-        params = self._get_action_params(kwargs)
+        params = self._get_action_params(kwargs, action)
         url = self._get_action_url(action)
         http_response = requests.get(url, params=params)
         return self._process_response(http_response, action)
@@ -96,7 +105,7 @@ class RestBackend(AuthBackendMixin, BaseBackend):
                 param_name = parameter_map_reverse_dict[raw_name]
             else:
                 param_name = raw_name
-            field = self.fields.get(action, {}).get(param_name)
+            field = self.result_fields.get(action, {}).get(param_name)
             if field:
                 raw_value = field.to_python(raw_value)
             if isinstance(raw_value, list):
@@ -114,11 +123,11 @@ class RestBackend(AuthBackendMixin, BaseBackend):
             raw_data = http_response.json()
             data = self._build_response_data(raw_data, action)
             if self.PARAM_ERROR_CODE in raw_data and int(raw_data[self.PARAM_ERROR_CODE]) != 0:
-                response = ErrorResponse(raw_data[self.PARAM_ERROR_CODE], raw_data[self.PARAM_ERROR_MESSAGE])
+                raise ErrorResponse(raw_data[self.PARAM_ERROR_CODE], raw_data[self.PARAM_ERROR_MESSAGE], data=raw_data)
             else:
                 response = Response(data.data)
         else:
-            response = HttpErrorResponse(http_response)
+            raise HttpErrorResponse(http_response)
         return response
 
     def register_order(self, **kwargs):
