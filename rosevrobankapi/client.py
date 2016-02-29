@@ -1,13 +1,15 @@
 from logging import getLogger
 
 from rosevrobankapi.backends.base.backend import BaseBackend
-from rosevrobankapi.response import BaseErrorResponse
-
+from rosevrobankapi.response import ApplicationErrorResponse, HttpErrorResponse
 
 logger = getLogger(__name__)
 
 
 class RosEvroBankClient(object):
+
+    PARAM_ERROR_CODE = 'error_code'
+    PARAM_ERROR_MESSAGE = 'error_message'
 
     ORDER_STATUS_REGISTERED = 0
     ORDER_STATUS_PRE_AUTH_HOLD = 1
@@ -16,6 +18,15 @@ class RosEvroBankClient(object):
     ORDER_STATUS_REFUNDED = 4
     ORDER_STATUS_ACS_AUTH_INITIATED = 5
     ORDER_STATUS_AUTH_REJECTED = 6
+
+    ERROR_NO_ERROR = 0
+    ERROR_REGISTERED_ALREADY = 1
+    ERROR_WRONG_PAYMENTS_DETAIL = 2
+    ERROR_WRONG_CURRENCY = 3
+    ERROR_MISSED_PARAMETER = 4
+    ERROR_WRONG_PARAMETER_VALUE = 5
+    ERROR_UNREGISTERED_ORDER = 6
+    ERROR_SYSTEM_ERROR = 7
 
     def __init__(self, **kwargs):
         backend = kwargs.get('backend')
@@ -27,12 +38,19 @@ class RosEvroBankClient(object):
         """
         :param method: method to call
         :type method: func
-        :param kwargs:
+        :param kwargs: action options
         :return: rosevrobankapi.response.Response
         """
         try:
             response = method(**kwargs)
-        except BaseErrorResponse as e:
+            is_error = self.PARAM_ERROR_CODE in response and int(response[self.PARAM_ERROR_CODE]) != 0 \
+                and self.PARAM_ERROR_MESSAGE in response \
+                and len(response) == 2
+            if is_error:
+                e = ApplicationErrorResponse(response[self.PARAM_ERROR_CODE], response[self.PARAM_ERROR_MESSAGE], data=kwargs)
+                logger.exception(e, extra={'backend': self.backend.name, 'method': method.__name__})
+                raise e
+        except HttpErrorResponse as e:
             logger.exception(e, extra={'backend': self.backend.name, 'method': method.__name__})
             raise
         return response

@@ -4,7 +4,7 @@ import requests
 
 from rosevrobankapi.backends.base.backend import BaseBackend, AuthBackendMixin
 from rosevrobankapi.backends.rest.fields import MoneyField, DateTimeField, CardDateField, TimestampField
-from rosevrobankapi.response import ErrorResponse, Response, HttpErrorResponse, ResponseData
+from rosevrobankapi.response import Response, HttpErrorResponse, ResponseData
 
 
 class RestBackend(AuthBackendMixin, BaseBackend):
@@ -122,10 +122,7 @@ class RestBackend(AuthBackendMixin, BaseBackend):
         if http_response.status_code == 200:
             raw_data = http_response.json()
             data = self._build_response_data(raw_data, action)
-            if self.PARAM_ERROR_CODE in raw_data and int(raw_data[self.PARAM_ERROR_CODE]) != 0:
-                raise ErrorResponse(raw_data[self.PARAM_ERROR_CODE], raw_data[self.PARAM_ERROR_MESSAGE], data=raw_data)
-            else:
-                response = Response(data.data)
+            response = Response(data.data)
         else:
             raise HttpErrorResponse(http_response)
         return response

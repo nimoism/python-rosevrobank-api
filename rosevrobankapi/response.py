@@ -11,7 +11,7 @@ class BaseErrorResponse(BaseResponse, ResponseException):
     pass
 
 
-class ErrorResponse(BaseErrorResponse):
+class ApplicationErrorResponse(BaseErrorResponse):
     def __init__(self, code, message, data=None):
         self.message = message
         self.code = code
@@ -45,6 +45,12 @@ class ResponseData(object):
 
     def __repr__(self):
         return self.__str__()
+
+    def __contains__(self, item):
+        return self.data.__contains__(item)
+
+    def __len__(self):
+        return self.data.__len__()
 
 
 class Response(ResponseData, BaseResponse):

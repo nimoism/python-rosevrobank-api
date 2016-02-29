@@ -14,8 +14,8 @@ class BackendMetaclass(type):
 class BaseBackend(with_metaclass(BackendMetaclass)):
     name = None
 
-    PARAM_ERROR_CODE = 'errorCode'
-    PARAM_ERROR_MESSAGE = 'errorMessage'
+    PARAM_ERROR_CODES = ['errorCode', 'ErrorCode']
+    PARAM_ERROR_MESSAGES = ['errorMessage', 'ErrorMessage']
 
     parameter_map = (
         ('acs_url', 'acsUrl'),
