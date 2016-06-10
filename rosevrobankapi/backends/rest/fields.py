@@ -14,7 +14,7 @@ class Field(object):
 class MoneyField(Field):
     def to_python(self, value):
         value = int(value)
-        return Decimal(value) / Decimal('100')
+        return (Decimal(value) / Decimal('100')).quantize(Decimal('.01'))
 
     def from_python(self, value):
         if isinstance(value, (Decimal, types.FloatType)):

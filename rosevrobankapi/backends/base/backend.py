@@ -67,7 +67,7 @@ class BaseBackend(with_metaclass(BackendMetaclass)):
         ('payment_state', 'paymentState'),
         ('refunded_amount', 'refundedAmount'),
         ('return_url', 'returnUrl'),
-        ('session_timeout', 'sessionTimeoutSec'),
+        ('session_timeout', 'sessionTimeoutSecs'),
         ('term_url', 'termUrl'),
         ('terminal_id', 'terminalId'),
         ('total_count', 'totalCount'),

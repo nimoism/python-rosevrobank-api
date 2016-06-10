@@ -58,12 +58,15 @@ class RestBackend(AuthBackendMixin, BaseBackend):
         },
         ACTION_GET_ORDER_STATUS: {
             'amount': MoneyField(),
+            'deposit_amount': MoneyField(),
             'expiration': CardDateField(),
+            'Amount': MoneyField(),
         },
         ACTION_GET_EXTENDED_ORDER_STATUS: {
             'amount': MoneyField(),
             'date': TimestampField(),
             'expiration': CardDateField(),
+            'Amount': MoneyField(),
         }
     }
 
