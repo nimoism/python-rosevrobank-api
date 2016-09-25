@@ -1,6 +1,7 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
 import requests
+import six
 
 from rosevrobankapi.backends.base.backend import BaseBackend, AuthBackendMixin
 from rosevrobankapi.backends.rest.fields import MoneyField, DateTimeField, CardDateField, TimestampField
@@ -85,7 +86,7 @@ class RestBackend(AuthBackendMixin, BaseBackend):
         params = {}
         self._append_secure(params)
         parameter_map_dict = dict(self.parameter_map)
-        for raw_name, raw_value in raw_params.iteritems():
+        for raw_name, raw_value in six.iteritems(raw_params):
             param_name = parameter_map_dict[raw_name] if raw_name in parameter_map_dict else raw_name
             param_value = raw_value
             field = self.action_fields.get(action, {}).get(param_name)
@@ -103,7 +104,7 @@ class RestBackend(AuthBackendMixin, BaseBackend):
     def _build_response_data(self, raw_data, action):
         params = {}
         parameter_map_reverse_dict = dict(self.parameter_map_reverse)
-        for raw_name, raw_value in raw_data.iteritems():
+        for raw_name, raw_value in six.iteritems(raw_data):
             if raw_name in parameter_map_reverse_dict:
                 param_name = parameter_map_reverse_dict[raw_name]
             else:
