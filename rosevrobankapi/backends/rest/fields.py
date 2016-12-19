@@ -1,6 +1,5 @@
 import datetime
 from decimal import Decimal
-import types
 
 
 class Field(object):
@@ -17,7 +16,7 @@ class MoneyField(Field):
         return (Decimal(value) / Decimal('100')).quantize(Decimal('.01'))
 
     def from_python(self, value):
-        if isinstance(value, (Decimal, types.FloatType)):
+        if isinstance(value, (Decimal, float)):
             value = int(value * 100)
         else:
             raise AttributeError('Value must be float or decimal types')
